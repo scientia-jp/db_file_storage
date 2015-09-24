@@ -1,6 +1,7 @@
 # python
 import base64
 import sys
+import os
 # django
 from django import VERSION as DJ_VERSION
 from django.core.files.base import ContentFile
@@ -77,6 +78,7 @@ class DatabaseFileStorage(Storage):
         }
 
     def _open(self, name, mode='rb'):
+        name = name.replace(os.sep, '/')
         assert mode[0] in 'rwab'
 
         storage_attrs = self._get_storage_attributes(name)
@@ -98,6 +100,8 @@ class DatabaseFileStorage(Storage):
         return _file
 
     def _save(self, name, content):
+        name = name.replace(os.sep, '/')
+
         storage_attrs = self._get_storage_attributes(name)
         model_class_path = storage_attrs['model_class_path']
         content_field = storage_attrs['content_field']
@@ -118,6 +122,8 @@ class DatabaseFileStorage(Storage):
         return new_filename
 
     def delete(self, name):
+        name = name.replace(os.sep, '/')
+
         storage_attrs = self._get_storage_attributes(name)
         model_class_path = storage_attrs['model_class_path']
         filename_field = storage_attrs['filename_field']
@@ -126,6 +132,8 @@ class DatabaseFileStorage(Storage):
         model_cls.objects.filter(**{filename_field: name}).delete()
 
     def exists(self, name):
+        name = name.replace(os.sep, '/')
+
         storage_attrs = self._get_storage_attributes(name)
         model_class_path = storage_attrs['model_class_path']
         filename_field = storage_attrs['filename_field']
@@ -137,6 +145,8 @@ class DatabaseFileStorage(Storage):
         ).exists()
 
     def url(self, name):
+        name = name.replace(os.sep, '/')
+
         _url = reverse('db_file_storage.download_file')
         return _url + '?' + urlencode({'name': name})
 
